@@ -9,7 +9,7 @@
 <small class="text-muted">Due time: {{ task.due_day }}</small>
 <div style="width: 100%;" class="mt-3 mb-3 border-bottom"></div>
 <p class="mt-3">
-  <a href="{% url 'task-update' task.pk %}" class="btn btn-outline-primary">Update</a>
-  <a href="{% url 'task-delete' task.pk %}" class="btn btn-outline-danger">Delete</a>
+  <a href="{% url 'task-update' task.pk %}" class="btn btn-primary">Update</a>
+  <a href="{% url 'task-delete' task.pk %}" class="btn btn-danger">Delete</a>
 </p>
 {% endblock %}
