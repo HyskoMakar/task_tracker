@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mt-3 mb-3">Tasks</h2>
+<div>
+  {% for task in tasks %}
+  <div class="card mb-3">
+      <div class="card-body">
+          <div style="justify-content: space-between; display: flex; align-items: center;">
+            <h5 class="card-title">
+              {{ task.title }}
+              <span class="badge text-bg-secondary">{{ task.status }}</span>
+              <span class="badge text-bg-primary">{{ task.priority }}</span>
+            </h5>
+            <a href="{% url 'task-detail' task.pk %}" class="btn btn-outline-info">Info</a>
+          </div>
+      </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
