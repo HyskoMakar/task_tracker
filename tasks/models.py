@@ -29,5 +29,18 @@ class Comment(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def total_likes(self):
+        return self.likes.count()
+
     def __str__(self):
         return f'Comment by {self.author.username} on {self.task.title}'
+
+class Like(models.Model):
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='likes')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='likes')
+
+    class Meta:
+        unique_together = ('comment', 'user')
+
+    def __str__(self):
+        return f'Like by {self.user.username} on comment with id: {self.comment.pk}'
