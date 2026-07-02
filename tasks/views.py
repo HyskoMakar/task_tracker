@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
+from django.contrib import messages
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from .forms import TaskForm, CommentForm
 from .models import Task, Comment, Like
 from .mixins import UserIsOwnerMixin
@@ -10,7 +12,7 @@ class TaskListView(ListView):
     model = Task
     context_object_name = 'tasks' 
 
-class TaskDetailView(LoginRequiredMixin, DetailView):
+class TaskDetailView(DetailView):
     model = Task
     context_object_name = 'task'
 
@@ -42,9 +44,13 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
             comment.task = task
             comment.creator = request.user
             comment.save()
+            messages.success(request, 'Comment was successfully added!')
             return redirect('task-detail', pk=comment.task.pk)
+        else:
+            messages.error(request, 'There was an error adding your comment. Please check all fields again and try again.')
+            return self.get(request, *args, **kwargs)
 
-class TaskCreateView(LoginRequiredMixin, CreateView):
+class TaskCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Task
     form_class = TaskForm
     success_url = reverse_lazy('task-list')
@@ -52,15 +58,29 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.creator = self.request.user
         return super().form_valid(form)
+    
+    def post(self, request, *args, **kwargs):
+        messages.success(self.request, "Task was successfully created!")
+        return super().post(request, *args, **kwargs)
 
-class TaskUpdateView(LoginRequiredMixin, UserIsOwnerMixin, UpdateView):
+class TaskUpdateView(LoginRequiredMixin, UserIsOwnerMixin, SuccessMessageMixin, UpdateView):
     model = Task
     form_class = TaskForm
-    success_url = reverse_lazy('task-list')
+
+    def get_success_url(self):
+        return reverse_lazy('task-detail', kwargs={'pk': self.object.pk})
+
+    def post(self, request, *args, **kwargs):
+        messages.success(self.request, "Task was successfully updated!")
+        return super().post(request, *args, **kwargs)
 
 class TaskDeleteView(LoginRequiredMixin, UserIsOwnerMixin, DeleteView):
     model = Task
     success_url = reverse_lazy('task-list')
+
+    def post(self, request, *args, **kwargs):
+        messages.success(self.request, "Task was successfully deleted!")
+        return super().post(request, *args, **kwargs)
 
 class CommentUpdateView(LoginRequiredMixin, UserIsOwnerMixin, UpdateView):
     model = Comment
@@ -70,6 +90,10 @@ class CommentUpdateView(LoginRequiredMixin, UserIsOwnerMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('task-detail', kwargs={'pk': self.object.task.pk})
     
+    def post(self, request, *args, **kwargs):
+        messages.success(self.request, "Comment was successfully updated!")
+        return super().post(request, *args, **kwargs)
+    
 class CommentDeleteView(LoginRequiredMixin, UserIsOwnerMixin, DeleteView):
     model = Comment
     context_object_name = 'comment'
@@ -77,11 +101,16 @@ class CommentDeleteView(LoginRequiredMixin, UserIsOwnerMixin, DeleteView):
     def get_success_url(self):
         return reverse_lazy('task-detail', kwargs={'pk': self.object.task.pk})
     
+    def post(self, request, *args, **kwargs):
+        messages.success(self.request, "Comment was successfully deleted!")
+        return super().post(request, *args, **kwargs)
+    
 def like_comment(request, pk):
-    if not request.user.is_authenticated:
-        return redirect('task-list')
-
     comment = get_object_or_404(Comment, id=pk)
+
+    if not request.user.is_authenticated:
+        messages.warning(request, 'Please sign in, then try again')
+        return redirect(reverse_lazy('task-detail', kwargs={'pk': comment.task.pk}))
     
     like_filter = Like.objects.filter(comment=comment, user=request.user)
 
