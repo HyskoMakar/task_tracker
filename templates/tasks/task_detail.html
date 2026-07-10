@@ -3,8 +3,12 @@
 {% block content %}
 <h2 class="mt-3">{{ task.title }}</h2>
 <div style="width: 100%;" class="mt-3 mb-3 border-bottom"></div>
-<p class="">Description: {{ task.description }}</p>
-<p class="">Status: <span class="badge text-bg-primary">{{ task.status }}</span></p>
+<div class="card">
+  <div class="card-body">
+    {{ task.description }}
+  </div>
+</div>
+<p class="mt-3">Status: <span class="badge text-bg-primary">{{ task.status }}</span></p>
 <p class="">Priority: <span class="badge text-bg-warning">{{ task.priority }}</span></p>
 <small class="text-muted">Due time: {{ task.due_day }}</small>
 {% if request.user == task.creator %}
@@ -17,25 +21,41 @@
 <div style="width: 100%;" class="mt-3 mb-3 border-bottom"></div>
 <h4>Comments</h4>
 {% if request.user.is_authenticated %}
-  <form method="post" class="card justify-content-center mt-3 mb-3">
+  <form method="post" enctype="multipart/form-data" class="card mt-3 mb-3">
     {% csrf_token %}
-    <div class="card-body align-items-center">
+    <div class="card-body">
       <h5>New comment:</h5>
-      <div>{{ comment_form.as_p }}</div>
-      <button type="submit" class="btn btn-primary">Submit</button>
+      <div class="w-100 my-2">
+        {{ comment_form.as_p }}
+      </div>
+      <button type="submit" class="btn btn-primary mt-2">Submit</button>
     </div>
   </form>
 {% endif %}
 {% for comment in comments %}
   <div class="card mb-3">
-    <div class="card-body d-flex align-items-center">
-      <div class="flex-grow-1">
-        <h5 class="card-title">{{ comment.creator.username }}</h5>
-        <p class="card-text">{{ comment.content }}</p>
-      </div>
+    <div class="card-header hstack pb-1">
+      <small class="h5">{{ comment.creator.username }}</small>
       {% if request.user == comment.creator %}
-        <a href="{% url 'comment-update' comment.pk %}" class="text-reset"><i class="bi bi-chevron-right"></i></a>
+        <a href="{% url 'comment-update' comment.pk %}" class="text-reset ms-auto"><i class="bi bi-pencil-square"></i></a>
       {% endif %}
+    </div>
+    {% if comment.media %}
+      {% with url=comment.media.url|lower %}
+        {% if ".jpg" in url or ".jpeg" in url or ".png" in url or ".webp" in url or ".gif" in url %}
+          <img src="{{ comment.media.url }}" alt="Image" class="card-img" style="border-radius: 0;">
+        {% elif ".mp4" in url or ".webm" in url or ".mov" in url %}
+          <video class="card-img" style="border-radius: 0;" controls>
+            <source src="{{ comment.media.url }}">
+            Your browser does not support the video tag.
+          </video>
+        {% else %}
+          <a href="{{ comment.media.url }}">Download file</a>
+        {% endif %}
+      {% endwith %}
+    {% endif %}
+    <div class="card-body">
+      <small class="card-text h6">{{ comment.content }}</small>
     </div>
 
     <form action="{% url 'comment-like' comment.id %}" method="POST">
@@ -45,7 +65,7 @@
       {% else %}
         <button type="submit" class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-bg-secondary" style="border: none">
       {% endif %}
-          <i class="bi bi-heart-fill"></i>
+          <i class="bi bi-star-fill"></i>
           {{ comment.total_likes }}
         </button>
     </form>

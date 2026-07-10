@@ -19,36 +19,21 @@
   <nav class="navbar navbar-expand-lg bg-body border-bottom">
     <div class="container-fluid">
       <a class="navbar-brand mb-0 h1" href="{% url 'task-list' %}">Task Tracker</a>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <!-- <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"aria-expanded="false">
-              Tasks
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="{% url 'task-list' %}">All tasks</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{% url 'task-list' %}">My tasks</a></li>
-            </ul>
-          </li> -->
-        </ul>
-      </div>
       <div class="hstack gap-2">
         <div>
           {% if request.user.is_authenticated %}
-            <a class="btn btn-outline-primary" href="{% url 'task-create' %}"><i class="bi bi-plus-lg"></i> Create new
-            </a>
-            <a href="" class="btn btn-outline-danger">Logout</a>
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %} 
+              <a class="btn btn-outline-primary" href="{% url 'task-create' %}"><i class="bi bi-plus-lg"></i> Create new</a>
+              <button type="submit" class="btn btn-outline-danger">Logout</button>
+            </form>
           {% else %}
             <div class="btn-group" role="group">
-              <a href="" class="btn btn-outline-primary">Sign in</a>
-              <a href="" class="btn btn-outline-primary">Sign up</a>
+              <a href="{% url 'login' %}" class="btn btn-outline-primary">Sign in</a>
+              <a href="{% url 'register' %}" class="btn btn-outline-primary">Sign up</a>
             </div>
           {% endif %}
         </div>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
       </div>
     </div>
   </nav>

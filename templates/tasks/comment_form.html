@@ -7,10 +7,10 @@
       <h2 class="mb-3">Edit comment</h2>
     </div>
     <div style="width: 100%;" class="mt-3 mb-3 border-bottom"></div>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
       {% for field in form %}
-        <div class="mb-3 vstack">
+        <div class="mb-3">
           <label class="form-label">{{ field.label }}</label>
           {{ field }}
           {% if field.errors %}

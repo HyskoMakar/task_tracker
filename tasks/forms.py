@@ -1,4 +1,5 @@
 from django import forms
+from django_ckeditor_5.widgets import CKEditor5Widget
 from .models import Task, Comment
 
 class TaskForm(forms.ModelForm):
@@ -16,7 +17,8 @@ class TaskForm(forms.ModelForm):
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ['content']
+        fields = ['content', 'media']
         widgets = {
             'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'media': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }

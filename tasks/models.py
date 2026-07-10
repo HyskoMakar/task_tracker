@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django_ckeditor_5.fields import CKEditor5Field
 
 class Task(models.Model):
     STATUS_CHOICES = [
@@ -28,12 +29,13 @@ class Comment(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    media = models.FileField(upload_to="comment/", blank=True, null=True)
 
     def total_likes(self):
         return self.likes.count()
 
     def __str__(self):
-        return f'Comment by {self.author.username} on {self.task.title}'
+        return f'Comment by {self.creator.username} on {self.task.title}'
 
 class Like(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='likes')
@@ -43,4 +45,4 @@ class Like(models.Model):
         unique_together = ('comment', 'user')
 
     def __str__(self):
-        return f'Like by {self.user.username} on comment with id: {self.comment.pk}'
+        return f'Like by {self.user.username} on {self.comment}'

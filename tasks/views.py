@@ -38,7 +38,7 @@ class TaskDetailView(DetailView):
 
     def post(self, request, *args, **kwargs):
         task = self.get_object()
-        comment_form = CommentForm(request.POST)
+        comment_form = CommentForm(request.POST, request.FILES)
         if comment_form.is_valid():
             comment = comment_form.save(commit=False)
             comment.task = task
@@ -84,7 +84,7 @@ class TaskDeleteView(LoginRequiredMixin, UserIsOwnerMixin, DeleteView):
 
 class CommentUpdateView(LoginRequiredMixin, UserIsOwnerMixin, UpdateView):
     model = Comment
-    fields = ['content']
+    form_class = CommentForm
     context_object_name = 'comment'
 
     def get_success_url(self):
